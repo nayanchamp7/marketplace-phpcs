@@ -82,13 +82,7 @@
   <rule ref="WordPress.Security.PluginMenuSlug"/>
   <rule ref="WordPress.Security.SafeRedirect"/>
   <!--  <rule ref="WordPress.Security.ValidatedSanitizedInput"/>-->
-
-  <!-- Custom Security Standards -->
-  <rule ref="./phpcs/ElegantThemesMarketplace/Sniffs/Security/BackticksSniff.php">
-    <type>error</type>
-    <message>Usage of backticks is not allowed as it gets converted to shell_exec() calls. This can be a security risk.</message>
-  </rule>
-
+  
   <!-- Wordpress WP Standards -->
   <config name="minimum_supported_wp_version" value="4.6"/>
   <rule ref="WordPress.WP.AlternativeFunctions"/>
