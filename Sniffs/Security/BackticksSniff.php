@@ -13,12 +13,12 @@ use PHP_CodeSniffer\Files\File;
 use PHP_CodeSniffer\Sniffs\Sniff;
 
 /**
- * Backticks detection with better error handling and auto-fixing.
+ * Backticks detection with strict error reporting.
  *
  * @package WPCS\WordPressCodingStandards
  * @since   1.0.0
  */
-class ImprovedBackticksSniff implements Sniff
+class BackticksSniff implements Sniff
 {
     /**
      * Track processed backticks to avoid duplicate errors.
@@ -84,20 +84,16 @@ class ImprovedBackticksSniff implements Sniff
         // Create detailed error message
         $command = trim($content);
         if (empty($command)) {
-            $error = 'Empty backticks found. Use shell_exec() with proper validation instead.';
+            $error = 'Empty backticks found. Backticks are not allowed - remove them entirely.';
         } else {
             $error = sprintf(
-                'Backticks execute shell command "%s". Use shell_exec() with proper sanitization instead.',
+                'Backticks execute shell command "%s". Backticks are not allowed - use proper alternatives like shell_exec() with validation or remove the command entirely.',
                 $this->truncateCommand($command)
             );
         }
 
-        // Add fixable error
-        $fix = $phpcsFile->addFixableError($error, $stackPtr, 'BackticksNotAllowed');
-        
-        if ($fix === true) {
-            $this->applyAutoFix($phpcsFile, $stackPtr, $closer, $content);
-        }
+        // Add non-fixable error - developer must manually resolve
+        $phpcsFile->addError($error, $stackPtr, 'BackticksNotAllowed');
     }
 
     /**
@@ -188,39 +184,5 @@ class ImprovedBackticksSniff implements Sniff
             return substr($command, 0, $maxLength) . '...';
         }
         return $command;
-    }
-
-    /**
-     * Apply automatic fix by converting backticks to shell_exec().
-     *
-     * @param File   $phpcsFile The file being processed.
-     * @param int    $opener    The opening backtick position.
-     * @param int    $closer    The closing backtick position.
-     * @param string $content   The content between backticks.
-     *
-     * @return void
-     */
-    private function applyAutoFix(File $phpcsFile, $opener, $closer, $content)
-    {
-        $phpcsFile->fixer->beginChangeset();
-        
-        // Replace opening backtick with shell_exec('
-        $phpcsFile->fixer->replaceToken($opener, "shell_exec('");
-        
-        // Escape any single quotes in the content
-        $escapedContent = str_replace("'", "\\'", $content);
-        
-        // Replace content if it needs escaping
-        if ($escapedContent !== $content) {
-            for ($i = $opener + 1; $i < $closer; $i++) {
-                $phpcsFile->fixer->replaceToken($i, '');
-            }
-            $phpcsFile->fixer->addContent($opener, $escapedContent);
-        }
-        
-        // Replace closing backtick with ')
-        $phpcsFile->fixer->replaceToken($closer, "')");
-        
-        $phpcsFile->fixer->endChangeset();
     }
 }
