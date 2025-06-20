@@ -82,7 +82,7 @@
   <rule ref="WordPress.Security.PluginMenuSlug"/>
   <rule ref="WordPress.Security.SafeRedirect"/>
   <!--  <rule ref="WordPress.Security.ValidatedSanitizedInput"/>-->
-
+  
   <!-- Wordpress WP Standards -->
   <config name="minimum_supported_wp_version" value="4.6"/>
   <rule ref="WordPress.WP.AlternativeFunctions"/>
